@@ -1,0 +1,2 @@
+出现黄字或者一大堆红字就是网络问题,可以关代理或
+pip install 要安装的模块名 -i http://pypi.douban.com/simple --trusted-host pypi.douban.com

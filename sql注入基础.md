@@ -72,6 +72,35 @@ select @@version_compile_os; -- 查看mysql安装的系统(linux,win)
 
 
 
+# 总体分类组合
+
+| 类型                     | 请求方式  | 位置             |
+| ------------------------ | --------- | ---------------- |
+| 显注，盲注（时间，布尔） | get，post | 参数，cookie，UA |
+
+总共3*2\*3=18种sql注入方式
+
+
+
+# DNSLOG配合sql注入攻击（只支持windows）
+
+### 原理
+
+假定我们的目的是要知道当前服务器sql数据库的用户名，ns服务器是可以记录dns记录的，而服务器收到恶意的sql语句后，例如user().test.com，被指定访问该资源，数据库接受到后，user()会被执行为root（只是例子）,进而访问root.test.com就会像本地dns访问，请求ip地址，但这些都在后端，我们是看不见的。但假如我们能查看ns服务器的日志，就会看到请求了root.test.com，这个root就是我们想要的结果
+
+善于使用这个机制，可以在windows搭载数据库的环境中将盲注变为显注。
+
+![img](https://www.programmerall.com/images/647/a8/a8db158b12058d2243a43334286be4df.png)
+
+### 应用
+
+在线的dnslog：http://ceye.io
+
+### 防御方式
+
+- 黑名单策略：把国内常见的dnslog网站地址全指向localhost
+- 白名单策略：只允许访问特定的dns服务器
+
 # 绕过字符检测
 
 有的时候会进行url的字符检测,比如屏蔽掉or,by,not这种
@@ -118,13 +147,13 @@ from→frorom
 
 可以尝试传*,1
 
-例如select 输入||a from flag
+例如select 输入||a from flag                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 
 可以用*,1来使1||a返回1,来查询前面的\*
 
 
 
-# 在很多字符被屏蔽的情况下可以考虑堆叠注入
+# 6在很多字符被屏蔽的情况下可以考虑堆叠注入
 
 闭合原语句;sql注入语句 -- a
 

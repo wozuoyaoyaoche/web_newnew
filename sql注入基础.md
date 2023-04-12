@@ -82,6 +82,18 @@ select @@version_compile_os; -- 查看mysql安装的系统(linux,win)
 
 
 
+# 为什么sql注入漏洞是高危，如何防范
+
+## 为什么
+
+通常情况下，服务器端的架构是很多主机连接在一台sql服务器上，调用数据库。而如果从一台主机入手，执行了恶意sql命令，就可能导致其他主机的数据库也泄露。
+
+## 如何防御
+
+- waf防御
+- 为不同数据库建立不同的独立sql用户，每个用户没权限访问其他的（不能防御sql注入，但能降低损失）
+- 不用apache，nginx的默认路径，让攻击方猜不到（防御sql注入读文件写文件）
+
 # DNSLOG配合sql注入攻击（只支持windows）
 
 ### 原理
@@ -254,6 +266,10 @@ MySQL的load_file()函数可以进行文件读取，**但是load_file()函数读
 将sql语句查询结果写入指定路径的文件，需要数据库在指定路径有写入权限，且得知道目录，否则只能试
 
 例：1' and 1=2 union select user,password from users into outfile '/var/www/dvwaplus/1.bak'#
+
+### 背后的逻辑细节
+
+实际上假如说是mysql数据库，在开启服务时是由他自动生成的同名mysql用户管理数据库，所以我们调用sql语句去读写文件都是利用mysql这个用户的权限
 
 ### 配合一句话木马
 
